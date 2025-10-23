@@ -1,0 +1,495 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OSCM Topic Quizzes – Interactive (Menu + Review Mode)</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#0b1328; --muted:#334155; --text:#e5e7eb;
+    --accent:#22c55e; --wrong:#ef4444; --warn:#f59e0b; --link:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0b1225,#0f172a 35%,#0b1225);color:var(--text);font:16px/1.55 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:20px 16px;border-bottom:1px solid #1f2937;background:#0b1225;position:sticky;top:0;z-index:10}
+  .head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;max-width:1100px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand img{height:38px;width:auto;border-radius:8px;border:1px solid #1f2937;background:#0f172a}
+  h1{margin:0;font-size:1.18rem}
+  .sub{color:#9ca3af;margin:0}
+  .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .badge{background:#052e1e;border:1px solid #064e3b;color:#a7f3d0;padding:4px 10px;border-radius:999px;font-size:.8rem}
+  .toggle{display:inline-flex;align-items:center;gap:8px;background:#0b1225;border:1px solid #1f2937;padding:6px 10px;border-radius:999px}
+  .toggle input{transform:scale(1.1)}
+  main{max-width:1100px;margin:0 auto;padding:18px}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:16px}
+  .card{border:1px solid #1f2937;background:var(--card);border-radius:16px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  .card h2{margin:6px 0 4px 0;font-size:1.05rem}
+  .card p{margin:6px 0 10px 0;color:#b6c2d1}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  button{background:#0b1225;border:1px solid #1f2937;color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer}
+  button:hover{border-color:#2a3a5d}
+  select{background:#0b1225;border:1px solid #1f2937;color:var(--text);padding:6px 10px;border-radius:10px}
+  .pill{display:inline-block;background:#0b1225;border:1px solid #1f2937;padding:3px 8px;border-radius:999px;font-size:.78rem;color:#9ca3af;margin-left:6px}
+  .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .q{padding:14px;border:1px solid #1f2937;border-radius:12px;margin:12px 0;background:#0c1327}
+  .q.correct{border-color:rgba(34,197,94,.6)}
+  .q.incorrect{border-color:rgba(239,68,68,.6)}
+  .opts{margin:8px 0 4px 0;display:grid;gap:8px}
+  .opt{display:flex;gap:10px;align-items:flex-start;padding:8px;border:1px solid #1f2937;border-radius:10px}
+  .opt[data-right="true"] .label.correct-show{outline:2px dashed rgba(34,197,94,.6);outline-offset:2px}
+  .opt input{margin-top:3px;transform:scale(1.15)}
+  .label{flex:1}
+  details{margin:8px 0} summary{cursor:pointer;color:#d1d5db}
+  .feedback{margin-top:8px;font-weight:600}
+  .ok{color:var(--accent)} .bad{color:var(--wrong)} .warn{color:var(--warn)}
+  .toptools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 14px 0}
+  .scoreline{margin-left:auto;font-weight:700}
+  .hidden{display:none}
+  .menu-title{display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="head">
+    <div class="brand">
+      <img id="logo" src="logo.png" alt="Logo" onerror="this.style.display='none'"/>
+      <div>
+        <h1>OSCM Topic Quizzes – Interactive</h1>
+        <p class="sub">Choose a topic from the main menu. In Review Mode, correct answers & explanations are revealed.</p>
+      </div>
+    </div>
+    <div class="right">
+      <span id="totalScore" class="badge">Total: 0/0</span>
+      <label class="toggle"><input type="checkbox" id="reviewToggle"> Review Mode</label>
+      <button id="backBtn" class="hidden" onclick="goMenu()">Back to Menu</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- MENU VIEW -->
+  <section id="menuView" class="grid">
+    <div class="card">
+      <div class="menu-title">
+        <h2>1) Supply Chain & Logistics</h2>
+        <span class="pill">Trade-offs • Networks • Transport</span>
+      </div>
+      <p>Cost-time tradeoffs, transport modes, cross-docking, customs, network paths, lead times.</p>
+      <div class="controls">
+        <label>Questions
+          <select id="cnt_s1">
+            <option>10</option><option>15</option><option selected>20</option><option>25</option>
+          </select>
+        </label>
+        <label>Mix
+          <select id="mix_s1">
+            <option value="60_40" selected>60% Concept / 40% Math</option>
+            <option value="50_50">50% Concept / 50% Math</option>
+            <option value="40_60">40% Concept / 60% Math</option>
+          </select>
+        </label>
+        <button onclick="startTopic('s1')">Start Quiz</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="menu-title">
+        <h2>2) Inventory Management</h2>
+        <span class="pill">EOQ • ROP • Safety Stock</span>
+      </div>
+      <p>EOQ, ROP, service levels, periodic review, total cost, interpretation & policy design.</p>
+      <div class="controls">
+        <label>Questions
+          <select id="cnt_s2">
+            <option>10</option><option selected>20</option><option>25</option><option>30</option>
+          </select>
+        </label>
+        <label>Mix
+          <select id="mix_s2">
+            <option value="40_60" selected>40% Concept / 60% Math</option>
+            <option value="50_50">50% Concept / 50% Math</option>
+            <option value="30_70">30% Concept / 70% Math</option>
+          </select>
+        </label>
+        <button onclick="startTopic('s2')">Start Quiz</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="menu-title">
+        <h2>3) Product Design, Production & Manufacturing</h2>
+        <span class="pill">Layouts • OEE • Line Balance</span>
+      </div>
+      <p>Product/process choices, concurrent engineering, layouts, OEE, productivity, flow time.</p>
+      <div class="controls">
+        <label>Questions
+          <select id="cnt_s3">
+            <option>10</option><option selected>20</option><option>25</option><option>30</option>
+          </select>
+        </label>
+        <label>Mix
+          <select id="mix_s3">
+            <option value="60_40" selected>60% Concept / 40% Math</option>
+            <option value="50_50">50% Concept / 50% Math</option>
+            <option value="40_60">40% Concept / 60% Math</option>
+          </select>
+        </label>
+        <button onclick="startTopic('s3')">Start Quiz</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="menu-title">
+        <h2>4) Capacity Analysis & Planning</h2>
+        <span class="pill">Bottlenecks • Takt • Little’s Law</span>
+      </div>
+      <p>Parallel/series capacity, bottlenecks, takt/cycle, Little’s Law, line efficiency, utilization.</p>
+      <div class="controls">
+        <label>Questions
+          <select id="cnt_s4">
+            <option>10</option><option>15</option><option selected>20</option><option>25</option>
+          </select>
+        </label>
+        <label>Mix
+          <select id="mix_s4">
+            <option value="40_60" selected>40% Concept / 60% Math</option>
+            <option value="50_50">50% Concept / 50% Math</option>
+            <option value="30_70">30% Concept / 70% Math</option>
+          </select>
+        </label>
+        <button onclick="startTopic('s4')">Start Quiz</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ VIEW (single topic at a time) -->
+  <section id="quizView" class="hidden card">
+    <div class="toptools">
+      <div class="row">
+        <strong id="topicTitle">Topic</strong>
+        <span id="topicPill" class="pill"></span>
+      </div>
+      <div class="row" style="margin-left:auto">
+        <button onclick="scoreQuiz()">Score Quiz</button>
+        <button onclick="regenerate()">Regenerate Set</button>
+        <span id="sectionScore" class="scoreline">Score: 0/0</span>
+      </div>
+    </div>
+    <div id="questionWrap"></div>
+  </section>
+</main>
+
+<script>
+// ---------- Utilities ----------
+const rnd = (min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function fmt(x){ return (Math.round(x*100)/100).toLocaleString(); }
+function int(x){ return Math.round(x); }
+function el(id){ return document.getElementById(id); }
+
+// ---------- Math Factories (reuseable across topics) ----------
+const Factories = {
+  inv_eoq: ()=>{
+    const D=rnd(8000,20000), S=rnd(40,200), C=rnd(20,120), H=rnd(15,30)/100;
+    const Q=Math.sqrt((2*D*S)/(C*H)); const AOC=D/Q*S, AHC=Q/2*C*H;
+    return {type:'single', prompt:`EOQ: D=${D}, S=$${S}, C=$${C}, H=${H*100}%/yr. Q* = ?`,
+      options:[{t:`${fmt(Q)}`,r:true},{t:`${fmt(Q*0.5)}`,r:false},{t:`${fmt(Q*1.5)}`,r:false},{t:`${fmt(Q*2)}`,r:false}],
+      work:`Q* = √(2DS/(CH)) = √(2×${D}×${S}/(${C}×${H})) = ${fmt(Q)}. At optimum AOC≈${fmt(AOC)}, AHC≈${fmt(AHC)}.`};
+  },
+  inv_rop: ()=>{
+    const d=rnd(80,180), L=rnd(4,12), sd=rnd(10,35), z=1.65, mean=d*L, sL=Math.sqrt(L)*sd, SS=z*sL, ROP=mean+SS;
+    return {type:'single', prompt:`Reorder Point: d=${d}/day, L=${L} days, σ_d=${sd}, z=1.65. ROP = ?`,
+      options:[{t:`${Math.round(ROP)}`,r:true},{t:`${mean}`,r:false},{t:`${Math.round(mean-SS)}`,r:false},{t:`${Math.round(mean+2*SS)}`,r:false}],
+      work:`ROP = dL + zσ_L, σ_L=√L σ_d = ${fmt(sL)}, SS=${fmt(SS)} → ROP≈${fmt(ROP)}.`};
+  },
+  inv_periodic: ()=>{
+    const T=rnd(5,15), L=rnd(3,10), d=rnd(80,160), sd=rnd(10,30), z=1.65;
+    const mean=d*(T+L), sTL=Math.sqrt(T+L)*sd, S=mean+z*sTL;
+    return {type:'single', prompt:`Periodic review (P,T): d=${d}, σ_d=${sd}, T=${T}, L=${L}, z=1.65. Order-up-to S=?`,
+      options:[{t:`${Math.round(S)}`,r:true},{t:`${Math.round(mean)}`,r:false},{t:`${Math.round(z*sTL)}`,r:false},{t:`${Math.round(d*L)}`,r:false}],
+      work:`S = d(T+L) + z√(T+L)σ_d = ${d}(${T}+${L}) + 1.65√(${T}+${L})${sd} ≈ ${fmt(S)}.`};
+  },
+  cap_parallel: ()=>{
+    const mu=rnd(18,30), m=rnd(2,4), cap=mu*m, d=rnd(int(0.6*cap), int(0.95*cap)), U=d/cap;
+    return {type:'single', prompt:`Parallel servers: ${m} stations × ${mu}/hr each, demand=${d}/hr. Capacity & utilization?`,
+      options:[{t:`${cap}/hr & ${fmt(U*100)}%`,r:true},{t:`${mu}/hr & ${fmt((d/mu)*100)}%`,r:false},{t:`${cap}/hr & ${fmt((mu/d)*100)}%`,r:false},{t:`${d}/hr & 100%`,r:false}],
+      work:`Capacity = m×μ = ${m}×${mu} = ${cap}/hr; U = d/cap = ${fmt(U)} (${fmt(U*100)}%).`};
+  },
+  cap_series: ()=>{
+    const s1=rnd(40,70), s2=rnd(60,100), s3=rnd(45,90), bottleneck=Math.min(s1,s2,s3);
+    return {type:'single', prompt:`Series line: S1=${s1}/hr, S2=${s2}/hr, S3=${s3}/hr. Line capacity = ?`,
+      options:[{t:`${bottleneck}/hr (bottleneck)`,r:true},{t:`${s1+s2+s3}/hr`,r:false},{t:`${Math.round((s1+s2+s3)/3)}/hr`,r:false},{t:`${Math.max(s1,s2,s3)}/hr`,r:false}],
+      work:`Series capacity = min(rates) = ${bottleneck}/hr.`};
+  },
+  cap_takt: ()=>{
+    const A=rnd(420,480), R=rnd(200,320), CT=A/R;
+    return {type:'single', prompt:`Takt/Cycle time: Available=${A} min/shift, Required output=${R}/shift. CT(min/unit)=?`,
+      options:[{t:`${fmt(CT)}`,r:true},{t:`${fmt(CT/2)}`,r:false},{t:`${fmt(CT*2)}`,r:false},{t:`${A}`,r:false}],
+      work:`CT = Available / Required = ${A} / ${R} = ${fmt(CT)}.`};
+  },
+  cap_little: ()=>{
+    const lam=rnd(15,40), W=rnd(2,10)/10, L=lam*W;
+    return {type:'single', prompt:`Little's Law: λ=${lam}/hr, W=${fmt(W)} hr. L (WIP) = ?`,
+      options:[{t:`${fmt(L)} units`,r:true},{t:`${fmt(W/lam)} units`,r:false},{t:`${fmt(lam/W)} units`,r:false},{t:`${fmt(lam)} units`,r:false}],
+      work:`L = λW = ${lam}×${fmt(W)} = ${fmt(L)} units.`};
+  },
+  prod_oee: ()=>{
+    const A=rnd(85,95)/100, P=rnd(85,95)/100, Q=rnd(97,100)/100, O=A*P*Q;
+    return {type:'single', prompt:`OEE: A=${fmt(A*100)}%, P=${fmt(P*100)}%, Q=${fmt(Q*100)}%. OEE = ?`,
+      options:[{t:`${fmt(O*100)}%`,r:true},{t:`${fmt((A+P+Q)/3*100)}%`,r:false},{t:`${fmt((A*P)*100)}%`,r:false},{t:`${fmt((P*Q)*100)}%`,r:false}],
+      work:`OEE = A×P×Q = ${fmt(A)}×${fmt(P)}×${fmt(Q)} = ${fmt(O)} = ${fmt(O*100)}%.`};
+  },
+  prod_linebal: ()=>{
+    const demand=rnd(400,700), shift=480, CT=shift/demand, sumt=rnd(300,430), mmin=Math.ceil(sumt/CT);
+    return {type:'single', prompt:`Line balancing: Demand=${demand}/shift, Σt=${sumt} min, Shift=${shift} min. m_min = ?`,
+      options:[{t:`${mmin}`,r:true},{t:`${Math.max(1,mmin-1)}`,r:false},{t:`${mmin+1}`,r:false},{t:`${int(CT)}`,r:false}],
+      work:`CT=480/${demand}=${fmt(CT)} min/unit; m_min=ceil(${sumt}/${fmt(CT)})=${mmin}.`};
+  },
+  prod_prod: ()=>{
+    const out=rnd(900,1400), inpt=rnd(700,1200), p=out/inpt;
+    return {type:'single', prompt:`Single-factor productivity: Output=${out}, Input=${inpt} labor-hours. Productivity = ?`,
+      options:[{t:`${fmt(p)} units/hr`,r:true},{t:`${fmt(inpt/out)} units/hr`,r:false},{t:`${fmt(out)} hr/unit`,r:false},{t:`${fmt(inpt)} hr/unit`,r:false}],
+      work:`Productivity=Output/Input=${out}/${inpt}=${fmt(p)} units/hr.`};
+  },
+  sc_transport: ()=>{
+    const dist=rnd(300,1200), fixed=rnd(200,800), varc=rnd(12,32)/10, cost=fixed+varc*dist;
+    return {type:'single', prompt:`Transport cost: Fixed=$${fixed}, variable=$${fmt(varc)}/mile, distance=${dist} mi. Cost=?`,
+      options:[{t:`$${fmt(cost)}`,r:true},{t:`$${fmt(varc*dist)}`,r:false},{t:`$${fmt(fixed)}`,r:false},{t:`$${fmt(cost*1.2)}`,r:false}],
+      work:`Cost=Fixed+Variable×Distance=${fixed}+${fmt(varc)}×${dist}=$${fmt(cost)}.`};
+  },
+  sc_modal: ()=>{
+    const air={t:rnd(1,3),c:rnd(70,120)/10}, ocean={t:rnd(14,28),c:rnd(12,22)/10};
+    const val=rnd(50,200), i=rnd(15,25)/100, diff=ocean.t-air.t, inv=val*i*(diff/365);
+    return {type:'single', prompt:`Air ${air.t}d @$${fmt(air.c)}/kg vs Ocean ${ocean.t}d @$${fmt(ocean.c)}/kg, value=$${val}/kg, i=${fmt(i*100)}%/yr. Which has lower landed cost?`,
+      options:[{t:`Air if freight premium ≤ inventory cost of ${diff}d ≈ $${fmt(inv)}/kg; else Ocean`,r:true},{t:`Always Ocean`,r:false},{t:`Always Air`,r:false},{t:`Lead time doesn't affect inventory cost`,r:false}],
+      work:`Inventory carrying for extra ${diff} days: ${val}×${i}×(${diff}/365)=$${fmt(inv)}/kg. Compare to freight premium.`};
+  },
+  sc_leadtime: ()=>{
+    const p=rnd(2,5), tr=rnd(4,10), c=rnd(1,4), dc=rnd(1,3), LT=p+tr+c+dc;
+    return {type:'single', prompt:`Lead time: production=${p}d, transport=${tr}d, customs=${c}d, DC=${dc}d. Total LT=?`,
+      options:[{t:`${LT} days`,r:true},{t:`${p+tr} days`,r:false},{t:`${tr+c} days`,r:false},{t:`${p+dc} days`,r:false}],
+      work:`LT=sum=${p}+${tr}+${c}+${dc}=${LT} days.`};
+  },
+};
+
+// ---------- Conceptual Pools per Topic ----------
+const Concepts = {
+  s1: [
+    {type:'truefalse', prompt:'Cross-docking minimizes storage by quickly sorting inbounds to outbound shipments.', options:[{t:'True',r:true},{t:'False',r:false}], work:'Cross-docking reduces dwell time and storage costs.'},
+    {type:'single', prompt:'Which best describes a 3PL?', options:[{t:'A firm providing transport/warehousing/order processing',r:true},{t:'A product design consultancy',r:false},{t:'A marketing agency',r:false},{t:'A customs authority',r:false}], work:'3PLs provide logistics services.'},
+    {type:'single', prompt:'A customs broker primarily…', options:[{t:'Manages import/export documentation and clearances',r:true},{t:'Manufactures components',r:false},{t:'Runs ad campaigns',r:false},{t:'Sets safety stock',r:false}], work:'Brokers handle border compliance and filings.'},
+    {type:'multi', prompt:'Select all supplier selection criteria:', options:[{t:'Cost & terms',r:true},{t:'Lead time & reliability',r:true},{t:'Logo color',r:false},{t:'Ethics & IT compatibility',r:true},{t:'Location/political risk',r:true}], work:'Supplier performance, risk, and compatibility matter.'},
+    {type:'single', prompt:'Green logistics seeks to primarily…', options:[{t:'Reduce emissions/energy usage/waste',r:true},{t:'Increase paperwork',r:false},{t:'Eliminate packaging entirely',r:false},{t:'Ignore service levels',r:false}], work:'Sustainability across transport and warehousing.'},
+    {type:'truefalse', prompt:'Postponement delays product differentiation to reduce forecast errors.', options:[{t:'True',r:true},{t:'False',r:false}], work:'Late-stage customization improves match to demand.'},
+    {type:'single', prompt:'Bullwhip effect is amplified by…', options:[{t:'Order batching, long lead times, demand signal processing',r:true},{t:'Vendor-managed inventory',r:false},{t:'Transparent POS data sharing',r:false},{t:'Short lead times',r:false}], work:'Info delays & batching cause variance amplification.'},
+    {type:'truefalse', prompt:'Incoterms define ownership transfer rules in domestic US trade law.', options:[{t:'True',r:false},{t:'False',r:true}], work:'Incoterms are international commercial terms, not domestic law.'},
+  ],
+  s2: [
+    {type:'single', prompt:'EOQ balances…', options:[{t:'Ordering cost and holding cost',r:true},{t:'Purchase price and transport',r:false},{t:'Setup time and lead time',r:false},{t:'Shrink and obsolescence only',r:false}], work:'At EOQ, AOC = AHC.'},
+    {type:'truefalse', prompt:'Safety stock protects against demand and/or lead time variability.', options:[{t:'True',r:true},{t:'False',r:false}], work:'Variability drives SS; cycle stock covers mean demand.'},
+    {type:'single', prompt:'A higher service level generally means…', options:[{t:'More safety stock and higher cost',r:true},{t:'Less safety stock and lower cost',r:false},{t:'No change to SS',r:false},{t:'Always optimal',r:false}], work:'Higher CSL ↑ z, raises SS and cost.'},
+    {type:'multi', prompt:'Select all: benefits of cycle counting over annual shutdowns', options:[{t:'Maintains accuracy continuously',r:true},{t:'Avoids capacity loss',r:true},{t:'Zero training needed',r:false},{t:'Finds root causes earlier',r:true}], work:'Continuous improvement & less disruption.'},
+    {type:'truefalse', prompt:'In periodic review, the order quantity equals S − on-hand at review.', options:[{t:'True',r:true},{t:'False',r:false}], work:'Order-up-to policies top up to level S.'},
+    {type:'single', prompt:'If lead time increases (variance constant), the ROP…', options:[{t:'Increases',r:true},{t:'Decreases',r:false},{t:'Unchanged',r:false},{t:'Becomes negative',r:false}], work:'Mean demand during L increases.'},
+  ],
+  s3: [
+    {type:'truefalse', prompt:'Product design choices lock in most lifecycle cost.', options:[{t:'True',r:true},{t:'False',r:false}], work:'Typically ~70–80% of cost is determined early.'},
+    {type:'single', prompt:'Concurrent engineering…', options:[{t:'Runs cross-functional activities in parallel',r:true},{t:'Forbids supplier input',r:false},{t:'Delays design freeze',r:false},{t:'Is only for software',r:false}], work:'Parallelism reduces time-to-market.'},
+    {type:'single', prompt:'Best layout for high-volume, low-variety?', options:[{t:'Product/line layout',r:true},{t:'Process/functional',r:false},{t:'Fixed-position',r:false},{t:'Random',r:false}], work:'Lines minimize handling for repetitive flows.'},
+    {type:'multi', prompt:'Select all: benefits of 5S/lean', options:[{t:'Organization & visual control',r:true},{t:'Reduced waste/motion',r:true},{t:'Longer changeovers',r:false},{t:'Improved safety',r:true}], work:'Lean targets MUDA and improves flow.'},
+    {type:'truefalse', prompt:'OEE penalizes defects via Quality factor.', options:[{t:'True',r:true},{t:'False',r:false}], work:'Q = good output / total output.'},
+    {type:'single', prompt:'Cellular manufacturing groups equipment by…', options:[{t:'Product family/flow similarity',r:true},{t:'Department hierarchy',r:false},{t:'Operator preference',r:false},{t:'Physical size only',r:false}], work:'Group technology supports flow.'},
+  ],
+  s4: [
+    {type:'single', prompt:'Bottleneck is the stage with…', options:[{t:'Lowest capacity/highest utilization',r:true},{t:'Most buffers',r:false},{t:'Shortest processing time',r:false},{t:'Most workers',r:false}], work:'System throughput limited by bottleneck.'},
+    {type:'truefalse', prompt:'Raising utilization close to 100% always improves flow time.', options:[{t:'True',r:false},{t:'False',r:true}], work:'As utilization approaches 1, waits grow nonlinearly.'},
+    {type:'single', prompt:'Little’s Law implies that lowering W while holding λ constant…', options:[{t:'Reduces L (WIP)',r:true},{t:'Increases L',r:false},{t:'No change',r:false},{t:'Reduces λ',r:false}], work:'L=λW.'},
+    {type:'multi', prompt:'Improve utilization without burnout:', options:[{t:'Reduce changeover time',r:true},{t:'Balance work across stations',r:true},{t:'Eliminate all breaks',r:false},{t:'Cross-train staff',r:true}], work:'Process improvements beat overloading people.'},
+    {type:'truefalse', prompt:'Adding a parallel server increases series-line capacity.', options:[{t:'True',r:false},{t:'False',r:true}], work:'Parallel increases that stage’s capacity, not entire series if bottleneck elsewhere.'},
+    {type:'single', prompt:'Takt time is defined as…', options:[{t:'Available time / required output',r:true},{t:'Processing time × stations',r:false},{t:'Sum of task times',r:false},{t:'Wait time per job',r:false}], work:'Sets cadence for flow.'},
+  ]
+};
+
+// ---------- Build a question set for a topic ----------
+function buildSet(topicId, count, mixTag){
+  const [cPct, mPct] = mixTag.split('_').map(Number); // conceptual %, math %
+  const cCount = Math.round(count * (cPct/100));
+  const mCount = count - cCount;
+
+  // Math pool per topic
+  let mathPool = [];
+  if(topicId==='s1'){ mathPool = [Factories.sc_transport,Factories.sc_modal,Factories.sc_leadtime,Factories.cap_little,Factories.cap_takt]; }
+  if(topicId==='s2'){ mathPool = [Factories.inv_eoq,Factories.inv_rop,Factories.inv_periodic,Factories.inv_eoq,Factories.inv_rop]; }
+  if(topicId==='s3'){ mathPool = [Factories.prod_oee,Factories.prod_linebal,Factories.prod_prod,Factories.cap_takt,Factories.cap_little]; }
+  if(topicId==='s4'){ mathPool = [Factories.cap_parallel,Factories.cap_series,Factories.cap_takt,Factories.cap_little,Factories.cap_efficiency]; }
+
+  // Generate math questions (fresh numbers each time)
+  let maths = [];
+  for(let i=0;i<mCount;i++){ const f = mathPool[i % mathPool.length]; maths.push(f()); }
+
+  // Conceptual pool (prewritten items)
+  const conceptPool = Concepts[topicId].slice();
+  shuffle(conceptPool);
+  const concepts = conceptPool.slice(0, Math.min(cCount, conceptPool.length));
+
+  // If conceptual pool smaller than required, duplicate with minor tweak
+  while(concepts.length < cCount){
+    // repeat from start
+    concepts.push(conceptPool[concepts.length % conceptPool.length]);
+  }
+
+  // Merge & shuffle
+  const all = concepts.concat(maths);
+  return shuffle(all);
+}
+
+// ---------- Render quiz ----------
+let currentTopic = null;
+function startTopic(topicId){
+  currentTopic = topicId;
+  const cnt = parseInt(el('cnt_'+topicId).value,10);
+  const mix = el('mix_'+topicId).value;
+  const set = buildSet(topicId, cnt, mix);
+  showQuiz(topicId, set);
+}
+
+function showQuiz(topicId, questions){
+  el('menuView').classList.add('hidden');
+  el('quizView').classList.remove('hidden');
+  el('backBtn').classList.remove('hidden');
+  const titles = {s1:'Supply Chain & Logistics', s2:'Inventory Management', s3:'Product Design, Production & Manufacturing', s4:'Capacity Analysis & Planning'};
+  const pills = {s1:'Trade-offs • Networks • Transport', s2:'EOQ • ROP • Safety Stock', s3:'Layouts • OEE • Line Balance', s4:'Bottlenecks • Takt • Little’s Law'};
+  el('topicTitle').textContent = titles[topicId];
+  el('topicPill').textContent = pills[topicId];
+  const wrap = el('questionWrap'); wrap.innerHTML='';
+
+  questions.forEach((q,idx)=>{
+    const node = document.createElement('div');
+    node.className = 'q'; node.dataset.type = q.type;
+    const name = topicId+'_'+(idx+1);
+    let optsHtml='';
+    if(q.type==='multi'){
+      optsHtml = q.options.map(o=>`<label class="opt" data-right="${o.r?'true':'false'}"><input type="checkbox"/><span class="label">${o.t}</span></label>`).join('');
+    }else{
+      optsHtml = q.options.map(o=>`<label class="opt" data-right="${o.r?'true':'false'}"><input type="radio" name="${name}"/><span class="label">${o.t}</span></label>`).join('');
+    }
+    node.innerHTML = `
+      <h3>${idx+1}) ${q.prompt}</h3>
+      <div class="opts">${optsHtml}</div>
+      <details><summary>Show work</summary><div>${(q.work||'—').replace(/\\n/g,'<br>')}</div></details>
+      <div class="row" style="margin-top:8px">
+        <button onclick="checkQ(this)">Check</button>
+        <button onclick="reveal(this)">Show answer</button>
+        <span class="feedback"></span>
+      </div>`;
+    wrap.appendChild(node);
+  });
+
+  // If Review Mode is on, apply it
+  setReviewMode(el('reviewToggle').checked);
+  updateTotals();
+  scoreQuiz();
+}
+
+function goMenu(){
+  el('quizView').classList.add('hidden');
+  el('menuView').classList.remove('hidden');
+  el('backBtn').classList.add('hidden');
+  el('sectionScore').textContent = 'Score: 0/0';
+  el('totalScore').textContent = 'Total: 0/0';
+  el('questionWrap').innerHTML='';
+  currentTopic = null;
+}
+
+function regenerate(){
+  if(!currentTopic) return;
+  startTopic(currentTopic);
+}
+
+// ---------- Scoring, Review Mode ----------
+function getQuestion(elm){ while(elm && !elm.classList.contains('q')) elm = elm.parentElement; return elm; }
+
+function checkQ(btn){
+  const q = getQuestion(btn);
+  const type = q.dataset.type;
+  const opts = [...q.querySelectorAll('.opt')];
+  let correct = true, any=false;
+  if(type==='multi'){
+    opts.forEach(o=>{
+      const inp=o.querySelector('input'); const should=o.dataset.right==='true'; const chosen=inp.checked;
+      any = any || chosen; if(should!==chosen) correct=false;
+    });
+  }else{
+    const r=opts.find(o=>o.querySelector('input').checked);
+    any = !!r; const right=opts.find(o=>o.dataset.right==='true'); correct = r && (r===right);
+  }
+  q.classList.remove('correct','incorrect');
+  if(!any){ q.querySelector('.feedback').innerHTML = '<span class="warn">Choose an option first.</span>'; return; }
+  if(correct){ q.classList.add('correct'); q.querySelector('.feedback').innerHTML = '<span class="ok">Correct!</span>'; }
+  else{ q.classList.add('incorrect'); q.querySelector('.feedback').innerHTML = '<span class="bad">Not quite. Try again or click “Show answer”.</span>'; }
+  updateTotals();
+}
+
+function reveal(btn){
+  const q = getQuestion(btn);
+  q.querySelectorAll('.opt').forEach(o=>{
+    const label = o.querySelector('.label');
+    label.classList.toggle('correct-show', o.dataset.right==='true');
+  });
+}
+
+function scoreQuiz(){
+  const wrap = el('questionWrap');
+  const qs = [...wrap.querySelectorAll('.q')];
+  let got=0,total=qs.length;
+  qs.forEach(q=>{
+    const type = q.dataset.type;
+    const opts = [...q.querySelectorAll('.opt')];
+    let correct=true;
+    if(type==='multi'){
+      opts.forEach(o=>{ const inp=o.querySelector('input'); const should=(o.dataset.right==='true'); const chosen=inp.checked; if(should!==chosen) correct=false; });
+    }else{
+      const r=opts.find(o=>o.querySelector('input').checked);
+      const right=opts.find(o=>o.dataset.right==='true');
+      correct = r && (r===right);
+    }
+    if(correct) got++;
+  });
+  el('sectionScore').textContent = `Score: ${got}/${total}`;
+  el('totalScore').textContent = `Total: ${got}/${total}`;
+}
+
+function updateTotals(){
+  // Same as scoreQuiz but doesn't add classes/messages
+  scoreQuiz();
+}
+
+function setReviewMode(on){
+  const root = document;
+  const qs = [...root.querySelectorAll('.q')];
+  if(on){
+    qs.forEach(q=>{
+      q.querySelectorAll('.opt').forEach(o=>{
+        const label = o.querySelector('.label');
+        if(o.dataset.right==='true'){ label.classList.add('correct-show'); }
+        const inp = o.querySelector('input'); inp.disabled = true;
+      });
+      q.querySelectorAll('details').forEach(d=> d.open = true);
+    });
+  }else{
+    qs.forEach(q=>{
+      q.querySelectorAll('.opt').forEach(o=>{
+        const label = o.querySelector('.label'); label.classList.remove('correct-show');
+        const inp = o.querySelector('input'); inp.disabled = false;
+      });
+      q.querySelectorAll('details').forEach(d=>{});
+    });
+  }
+}
+
+el('reviewToggle').addEventListener('change', (e)=> setReviewMode(e.target.checked));
+</script>
+</body>
+</html>
